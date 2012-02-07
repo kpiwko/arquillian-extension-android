@@ -19,23 +19,26 @@
         <!--</configuration> -->
     </container>
 
+    <extension qualifier="selenium-server">
+        <!-- this must be skipped, we run /wd/hub on emulator -->
+        <property name="skip">true</property>
+    </extension>
+
     <extension qualifier="webdriver">
         <property name="implementationClass">org.openqa.selenium.android.AndroidDriver</property>
         <property name="remoteAddress">http://localhost:14444/wd/hub</property>
     </extension>
 
     <extension qualifier="android-sdk">
-        <!-- DEFY+ <property name="serialId">0A3B89060A01600D</property> -->
+        <!-- DEFY+ -->
+        <!-- <property name="serialId">0A3B89060A01600D</property> -->
         <!-- Nexus S <property name="serialId">3233E8EDB21700EC</property> -->
-        <!-- this is not able to do the screenshot -->
-        <!-- <property name="verbose">true</property> <property name="androidServerApk">android-server-2.6.0.apk</property> <property 
-            name="apiLevel">8</property> <property name="avdName">test-device</property> <property name="emulatorStartupTimeout">120000</property> -->
 
         <property name="verbose">true</property>
-        <property name="androidServerApk">android-server-2.13.0.apk</property>
+        <property name="androidServerApk">android-server-2.16.apk</property>
         <property name="apiLevel">13</property>
         <property name="avdName">SnapshotEnabled</property>
-        <property name="emulatorStartupTimeout">10000</property>
+        <property name="emulatorStartupTimeout">180000</property>
 
     </extension>
 

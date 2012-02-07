@@ -26,8 +26,7 @@ public class AndroidTestCase {
 
         // Find the text input element by its name
         WebElement element = driver.findElement(By.name("q"));
-        File f = driver.getScreenshotAs(OutputType.FILE);
-        Files.copy(f, new File("target/screen.png"));
+        Files.copy(driver.getScreenshotAs(OutputType.FILE), new File("target/screen.png"));
 
         // Enter something to search for
         element.sendKeys("Cheese!");
@@ -35,11 +34,7 @@ public class AndroidTestCase {
         // Now submit the form. WebDriver will find the form for us from the element
         element.submit();
 
-        f = driver.getScreenshotAs(OutputType.FILE);
-        Files.copy(f, new File("target/screen2.png"));
-
-        // Check the title of the page
-        System.out.println("Page title is: " + driver.getTitle());
+        Files.copy(driver.getScreenshotAs(OutputType.FILE), new File("target/screen2.png"));
 
     }
 }
