@@ -1,14 +1,9 @@
 package org.jboss.arquillian.android.event;
 
-public class AndroidVirtualDeviceAvailable {
-
-    private final String name;
+public class AndroidVirtualDeviceAvailable extends AndroidDeviceStartupEvent {
 
     public AndroidVirtualDeviceAvailable(String name) {
-        this.name = name;
+        super(name);
     }
 
-    public String getName() {
-        return name;
-    }
 }

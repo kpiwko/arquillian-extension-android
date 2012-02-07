@@ -77,7 +77,17 @@ public class AndroidSdkConfigurator {
             }
         }
 
-        if (configured || configuration.isSkip() != true) {
+        if (configured && configuration.isSkip() != true) {
+
+            // validate configuration
+            if (configuration.getAvdName() == null && configuration.getSerialId() == null) {
+                throw new AndroidConfigurationException(
+                        "You must provide either \"avdName\" if you want to use an emulator, or \"serialId\" property if you want to use a real device.");
+            }
+            if (configuration.getAvdName() != null && configuration.getSerialId() != null) {
+                log.warning("Both \"avdName\" and \"serialId\" properties are defined, the device specified by \"serialId\" will get priority");
+            }
+
             AndroidSdk sdk = new AndroidSdk(configuration);
             androidSdkConfiguration.set(configuration);
             androidSdk.set(sdk);

@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.jboss.arquillian.android.AndroidConfigurationException;
 import org.jboss.arquillian.android.configuration.AndroidSdk;
 import org.jboss.arquillian.android.configuration.AndroidSdkConfiguration;
+import org.jboss.arquillian.android.event.AndroidDeviceAvailable;
 import org.jboss.arquillian.android.event.AndroidSdkConfigured;
 import org.jboss.arquillian.android.event.AndroidVirtualDeviceAvailable;
 import org.jboss.arquillian.android.event.AndroidVirtualDeviceCreated;
@@ -50,6 +51,9 @@ public class AndroidVirtualDeviceCreator {
     @Inject
     private Event<AndroidVirtualDeviceAvailable> avdAvailable;
 
+    @Inject
+    private Event<AndroidDeviceAvailable> adAvailable;
+
     @SuppressWarnings("serial")
     public void createAndroidVirtualDevice(@Observes AndroidSdkConfigured event, ProcessExecutor executor)
             throws AndroidConfigurationException, IOException {
@@ -60,18 +64,25 @@ public class AndroidVirtualDeviceCreator {
         Set<String> devices = getDeviceNames(executor, sdk);
 
         String avdName = configuration.getAvdName();
-        if (!devices.contains(avdName) || configuration.isForce()) {
+        String serialId = configuration.getSerialId();
+        // get priority for device specified by serialId
+        if (serialId != null && serialId.length() > 0) {
+            adAvailable.fire(new AndroidDeviceAvailable());
+        }
+        // check out avd availability
+        else if (!devices.contains(avdName) || configuration.isForce()) {
             if (log.isLoggable(Level.FINE)) {
                 log.fine("Creating an Android virtual device named " + avdName);
             }
-            // create device
-            // FIXME size is hardcoded to be 256M
+
+            Validate.notNullOrEmpty(configuration.getSdSize(), "Memory SD card size must be defined");
+
             executor.execute(new HashMap<String, String>() {
                 {
                     put("Do you wish to create a custom hardware profile [no]", "no\n");
                 }
             }, sdk.getAndroidPath(), "create", "avd", "-n", avdName, "-t", "android-" + configuration.getApiLevel(), "-f",
-                    "-p", "target/" + avdName, "-c", "256M");
+                    "-p", "target/" + avdName, "-c", configuration.getSdSize());
 
             log.info("Android virtual device " + avdName + " was created");
             avdCreated.fire(new AndroidVirtualDeviceCreated(avdName));

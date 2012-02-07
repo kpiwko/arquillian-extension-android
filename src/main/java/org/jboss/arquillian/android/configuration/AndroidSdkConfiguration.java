@@ -8,13 +8,21 @@ public class AndroidSdkConfiguration {
 
     private boolean force;
 
+    private String serialId;
+
     private String avdName;
 
     private String emulatorOptions;
 
+    private String sdSize = "128M";
+
+    private long emulatorStartupTimeout = 50000L;
+
+    private String androidServerApk = "android-server.apk";
+
     private String home = System.getenv("ANDROID_HOME");
 
-    private String apiLevel = "10";
+    private String apiLevel = "13";
 
     public String getHome() {
         return home;
@@ -30,6 +38,14 @@ public class AndroidSdkConfiguration {
 
     public void setAvdName(String avdName) {
         this.avdName = avdName;
+    }
+
+    public String getSerialId() {
+        return serialId;
+    }
+
+    public void setSerialId(String serialId) {
+        this.serialId = serialId;
     }
 
     public String getEmulatorOptions() {
@@ -64,11 +80,35 @@ public class AndroidSdkConfiguration {
         this.force = force;
     }
 
+    public long getEmulatorStartupTimeout() {
+        return emulatorStartupTimeout;
+    }
+
+    public void setEmulatorStartupTimeout(long emulatorStartupTimeout) {
+        this.emulatorStartupTimeout = emulatorStartupTimeout;
+    }
+
     public String getApiLevel() {
         return apiLevel;
     }
 
     public void setApiLevel(String apiLevel) {
         this.apiLevel = apiLevel;
+    }
+
+    public String getSdSize() {
+        return sdSize;
+    }
+
+    public void setSdSize(String sdSize) {
+        this.sdSize = sdSize;
+    }
+
+    public String getAndroidServerApk() {
+        return androidServerApk;
+    }
+
+    public void setAndroidServerApk(String androidServerApk) {
+        this.androidServerApk = androidServerApk;
     }
 }

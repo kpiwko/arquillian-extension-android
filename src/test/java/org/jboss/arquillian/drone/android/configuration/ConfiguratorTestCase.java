@@ -61,7 +61,7 @@ public class ConfiguratorTestCase extends AbstractTestTestBase {
     }
 
     @Test
-    public void validConfiguration() throws Exception {
+    public void skipConfiguration() throws Exception {
 
         // set mocks
         ArquillianDescriptor desc = Descriptors.create(ArquillianDescriptor.class)
@@ -80,7 +80,7 @@ public class ConfiguratorTestCase extends AbstractTestTestBase {
 
         AndroidSdkConfiguration configuration = getManager().getContext(SuiteContext.class).getObjectStore()
                 .get(AndroidSdkConfiguration.class);
-        Assert.assertNotNull("Android SDK configuration was created in the context", configuration);
+        Assert.assertNull("Android SDK configuration was NOT created in the context", configuration);
 
         fire(new BeforeClass(DummyClass.class));
         fire(new Before(instance, testMethod));
@@ -89,7 +89,24 @@ public class ConfiguratorTestCase extends AbstractTestTestBase {
         fire(new AfterClass(DummyClass.class));
 
         // assert Android SDK event was passed
-        assertEventFired(AndroidSdkConfigured.class, 1);
+        assertEventFired(AndroidSdkConfigured.class, 0);
+    }
+
+    @Test(expected = AndroidConfigurationException.class)
+    public void missingAvdOrSerialId() throws Exception {
+
+        // set mocks
+        ArquillianDescriptor desc = Descriptors.create(ArquillianDescriptor.class)
+                .extension(AndroidSdkConfigurator.ANDROID_SDK_EXTENSION_NAME).property("skip", "false");
+
+        bind(ApplicationScoped.class, ServiceLoader.class, serviceLoader);
+        bind(ApplicationScoped.class, ArquillianDescriptor.class, desc);
+
+        getManager().getContext(ClassContext.class).activate(DummyClass.class);
+
+        Object instance = new DummyClass();
+        getManager().getContext(TestContext.class).activate(instance);
+        fire(new BeforeSuite());
     }
 
     @Test(expected = AndroidConfigurationException.class)
@@ -97,8 +114,8 @@ public class ConfiguratorTestCase extends AbstractTestTestBase {
 
         // set mocks
         ArquillianDescriptor desc = Descriptors.create(ArquillianDescriptor.class)
-                .extension(AndroidSdkConfigurator.ANDROID_SDK_EXTENSION_NAME).property("skip", "true")
-                .property("apiLevel", "2.3.3");
+                .extension(AndroidSdkConfigurator.ANDROID_SDK_EXTENSION_NAME).property("skip", "false")
+                .property("avdName", "foobar").property("apiLevel", "2.3.3");
 
         bind(ApplicationScoped.class, ServiceLoader.class, serviceLoader);
         bind(ApplicationScoped.class, ArquillianDescriptor.class, desc);

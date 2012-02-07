@@ -16,9 +16,12 @@
  */
 package org.jboss.arquillian.android;
 
+import org.jboss.arquillian.android.impl.AndroidDebugBridgeConnector;
 import org.jboss.arquillian.android.impl.AndroidSdkConfigurator;
 import org.jboss.arquillian.android.impl.AndroidVirtualDeviceCreator;
-import org.jboss.arquillian.android.impl.EmulatorStarter;
+import org.jboss.arquillian.android.impl.AndroidWebDriverSupport;
+import org.jboss.arquillian.android.impl.EmulatorShutdown;
+import org.jboss.arquillian.android.impl.EmulatorStartup;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
 /**
@@ -29,6 +32,9 @@ public class AndroidSdkExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.observer(AndroidSdkConfigurator.class);
         builder.observer(AndroidVirtualDeviceCreator.class);
-        builder.observer(EmulatorStarter.class);
+        builder.observer(AndroidDebugBridgeConnector.class);
+        builder.observer(EmulatorStartup.class);
+        builder.observer(AndroidWebDriverSupport.class);
+        builder.observer(EmulatorShutdown.class);
     }
 }
