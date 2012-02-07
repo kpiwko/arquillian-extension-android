@@ -10,6 +10,7 @@ import org.jboss.arquillian.android.AndroidConfigurationException;
 import org.jboss.arquillian.android.configuration.AndroidSdkConfiguration;
 import org.jboss.arquillian.android.event.AndroidDeviceReady;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.event.suite.Before;
 
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.AndroidDebugBridge;
@@ -40,11 +41,18 @@ public class AndroidWebDriverSupport {
             throw new AndroidConfigurationException("Unable to install Android Server APK from "
                     + configuration.getAndroidServerApk() + " on device " + device.getSerialNumber(), e);
         }
+    }
+
+    // we have to start it in before event because Drone does not have a proper event hierarchy
+    public void startWebDriver(@Observes Before event, IDevice device, AndroidSdkConfiguration configuration) {
 
         try {
             WebDriverMonkey monkey = new WebDriverMonkey(configuration);
+            // open webdriver
             device.executeShellCommand(
                     "am start -a android.intent.action.MAIN -n org.openqa.selenium.android.app/.MainActivity", monkey);
+
+            // add port forwarding
             device.executeShellCommand("forward tcp:14444 tcp:8080", monkey);
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
@@ -62,7 +70,7 @@ public class AndroidWebDriverSupport {
 
     }
 
-    private class WebDriverMonkey implements IShellOutputReceiver {
+    private static class WebDriverMonkey implements IShellOutputReceiver {
 
         private AndroidSdkConfiguration configuration;
 
