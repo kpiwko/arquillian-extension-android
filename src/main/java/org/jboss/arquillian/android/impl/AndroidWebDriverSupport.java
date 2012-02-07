@@ -11,7 +11,6 @@ import org.jboss.arquillian.android.configuration.AndroidSdk;
 import org.jboss.arquillian.android.configuration.AndroidSdkConfiguration;
 import org.jboss.arquillian.android.event.AndroidDeviceReady;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.test.spi.event.suite.Before;
 
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.AndroidDebugBridge;
@@ -25,7 +24,8 @@ public class AndroidWebDriverSupport {
     private static final Logger log = Logger.getLogger(AndroidWebDriverSupport.class.getName());
 
     public void prepareWebDriverEnvironment(@Observes AndroidDeviceReady event, AndroidSdkConfiguration configuration,
-            AndroidDebugBridge bridge) throws AndroidConfigurationException {
+            AndroidDebugBridge bridge, ProcessExecutor executor, AndroidSdk sdk) throws AndroidConfigurationException,
+            IOException {
 
         if (!bridge.isConnected()) {
             throw new IllegalStateException("Android debug bridge must be connected in order to prepare webdriver support");
@@ -37,16 +37,13 @@ public class AndroidWebDriverSupport {
         try {
             Validate.isReadable(configuration.getAndroidServerApk(), "Android server APK path must be valid, but it was: "
                     + configuration.getAndroidServerApk());
-            device.installPackage(configuration.getAndroidServerApk(), configuration.isForce());
+            // FIXME forcing installation
+            device.installPackage(configuration.getAndroidServerApk(), true);
+
         } catch (InstallException e) {
             throw new AndroidConfigurationException("Unable to install Android Server APK from "
                     + configuration.getAndroidServerApk() + " on device " + device.getSerialNumber(), e);
         }
-    }
-
-    // we have to start it in before event because Drone does not have a proper event hierarchy
-    public void startWebDriver(@Observes Before event, IDevice device, AndroidSdkConfiguration configuration, AndroidSdk sdk,
-            ProcessExecutor executor) {
 
         try {
             WebDriverMonkey monkey = new WebDriverMonkey(configuration);
@@ -55,7 +52,9 @@ public class AndroidWebDriverSupport {
                     "am start -a android.intent.action.MAIN -n org.openqa.selenium.android.app/.MainActivity", monkey);
 
             // add port forwarding
-            executor.execute(sdk.getAdbPath(), "-s", device.getSerialNumber(), "forward", "tcp:14444", "tcp:8080");
+            executor.execute(sdk.getAdbPath(), "-s", device.getSerialNumber(), "forward",
+                    "tcp:" + configuration.getWebdriverPortHost(), "tcp:" + configuration.getWebdriverPortGuest());
+
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
