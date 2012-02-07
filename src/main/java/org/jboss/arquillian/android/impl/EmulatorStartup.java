@@ -53,6 +53,8 @@ public class EmulatorStartup {
 
         if (running == null) {
 
+            log.info("Starting avd named: " + name);
+            
             // discover what device was added here
             DeviceDiscovery deviceDiscovery = new DeviceDiscovery();
             AndroidDebugBridge.addDeviceChangeListener(deviceDiscovery);
