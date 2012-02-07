@@ -53,10 +53,12 @@ class ProcessExecutor {
         final Process p = builder.start();
 
         AndroidConsoleConsumer consumer = new AndroidConsoleConsumer(p, configuration, input);
-        new Thread(consumer).start();
+        Thread consumerThread = new Thread(consumer);
+        consumerThread.start();
 
         try {
             p.waitFor();
+            consumerThread.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
