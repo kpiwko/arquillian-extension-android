@@ -20,6 +20,10 @@ public class AndroidSdkConfiguration {
 
     private String androidServerApk = "android-server.apk";
 
+    private int webdriverPortHost = 14444;
+
+    private int webdriverPortGuest = 8080;
+
     private String home = System.getenv("ANDROID_HOME");
 
     private String apiLevel = "13";
@@ -110,5 +114,21 @@ public class AndroidSdkConfiguration {
 
     public void setAndroidServerApk(String androidServerApk) {
         this.androidServerApk = androidServerApk;
+    }
+
+    public int getWebdriverPortGuest() {
+        return webdriverPortGuest;
+    }
+
+    public void setWebdriverPortGuest(int webdriverPortGuest) {
+        this.webdriverPortGuest = webdriverPortGuest;
+    }
+
+    public int getWebdriverPortHost() {
+        return webdriverPortHost;
+    }
+
+    public void setWebdriverPortHost(int webdriverPortHost) {
+        this.webdriverPortHost = webdriverPortHost;
     }
 }
