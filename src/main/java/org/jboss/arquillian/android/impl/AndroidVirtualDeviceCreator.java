@@ -97,7 +97,7 @@ public class AndroidVirtualDeviceCreator {
 
     private Set<String> getDeviceNames(ProcessExecutor executor, AndroidSdk sdk) throws IOException {
 
-        final Pattern deviceName = Pattern.compile("[\\s]+Name: ([^\\s]*)");
+        final Pattern deviceName = Pattern.compile("[\\s]*Name: ([^\\s]+)[\\s]*");
 
         Set<String> names = new HashSet<String>();
 
@@ -109,6 +109,9 @@ public class AndroidVirtualDeviceCreator {
                 String name = m.group(1);
                 Validate.notNull(name, "Invalid name of available Android devices, must not be null");
                 names.add(name);
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Available Android Device: " + name);
+                }
             }
         }
 
