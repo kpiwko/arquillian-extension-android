@@ -54,7 +54,7 @@ public class EmulatorStartup {
         if (running == null) {
 
             log.info("Starting avd named: " + name);
-            
+
             // discover what device was added here
             DeviceDiscovery deviceDiscovery = new DeviceDiscovery();
             AndroidDebugBridge.addDeviceChangeListener(deviceDiscovery);
@@ -62,16 +62,9 @@ public class EmulatorStartup {
             Process emulator = executor.spawn(sdk.getEmulatorPath(), "-avd", name, configuration.getEmulatorOptions());
             androidEmulator.set(new AndroidEmulator(emulator));
 
-            try {
-                Thread.sleep(configuration.getEmulatorStartupTimeout());
-                Validate.stateNotNull(deviceDiscovery.getDiscoveredDevice(), "No emulator device was connected during "
-                        + configuration.getEmulatorStartupTimeout()
-                        + "ms to Android Debug Bridge. Please increase the time limit in order to get emulator connected.");
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Interrupted while waiting for Emulator for " + name + " to start up");
-            }
-
+            waitUntilConnected(deviceDiscovery, configuration.getEmulatorStartupTimeout());
             running = deviceDiscovery.getDiscoveredDevice();
+
             AndroidDebugBridge.removeDeviceChangeListener(deviceDiscovery);
 
         } else {
@@ -87,6 +80,35 @@ public class EmulatorStartup {
         // publish device and fire event
         iDevice.set(running);
         androidDeviceReady.fire(new AndroidDeviceReady(running));
+
+    }
+
+    /**
+     * Run a wait loop until adb is connected or trials run out. This method seems to work more reliably then using a listener.
+     * 
+     * @param adb
+     */
+    private void waitUntilConnected(DeviceDiscovery deviceDiscovery, long timeout) {
+
+        boolean deviceIsOnline = false;
+        long timeoutLimit = timeout;
+        while (timeoutLimit > 0) {            
+            if (deviceDiscovery.isOnline()) {
+                deviceIsOnline = true;
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+                timeoutLimit -= 1000;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!deviceIsOnline) {
+            throw new IllegalStateException("No emulator device was brough online during " + timeout
+                    + "ms to Android Debug Bridge. Please increase the time limit in order to get emulator connected.");
+        }
 
     }
 
@@ -106,8 +128,15 @@ public class EmulatorStartup {
 
         private IDevice discoveredDevice;
 
+        private boolean online;
+
         @Override
         public void deviceChanged(IDevice device, int changeMask) {
+            if (discoveredDevice.equals(device) && (changeMask & IDevice.CHANGE_STATE) == 1) {
+                if (device.isOnline()) {
+                    this.online = true;
+                }
+            }
         }
 
         @Override
@@ -122,6 +151,10 @@ public class EmulatorStartup {
 
         public IDevice getDiscoveredDevice() {
             return discoveredDevice;
+        }
+
+        public boolean isOnline() {
+            return online;
         }
     }
 }

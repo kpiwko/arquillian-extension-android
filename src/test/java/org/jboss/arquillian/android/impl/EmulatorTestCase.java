@@ -70,8 +70,8 @@ public class EmulatorTestCase extends AbstractTestTestBase {
     public void setMocks() {
         ArquillianDescriptor desc = Descriptors.create(ArquillianDescriptor.class)
                 .extension(AndroidSdkConfigurator.ANDROID_SDK_EXTENSION_NAME).property("force", "false")
-                .property("verbose", "false").property("avdName", "foobar-test-device")
-                .property("emulatorStartupTimeout", "5000");
+                .property("verbose", "true").property("avdName", "foobar-test-device")                
+                .property("emulatorStartupTimeout", "180000");
 
         bind(ApplicationScoped.class, ServiceLoader.class, serviceLoader);
         bind(ApplicationScoped.class, ArquillianDescriptor.class, desc);
