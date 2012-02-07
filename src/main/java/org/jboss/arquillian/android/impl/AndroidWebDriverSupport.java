@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import org.jboss.arquillian.android.AndroidConfigurationException;
+import org.jboss.arquillian.android.configuration.AndroidSdk;
 import org.jboss.arquillian.android.configuration.AndroidSdkConfiguration;
 import org.jboss.arquillian.android.event.AndroidDeviceReady;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -44,7 +45,8 @@ public class AndroidWebDriverSupport {
     }
 
     // we have to start it in before event because Drone does not have a proper event hierarchy
-    public void startWebDriver(@Observes Before event, IDevice device, AndroidSdkConfiguration configuration) {
+    public void startWebDriver(@Observes Before event, IDevice device, AndroidSdkConfiguration configuration, AndroidSdk sdk,
+            ProcessExecutor executor) {
 
         try {
             WebDriverMonkey monkey = new WebDriverMonkey(configuration);
@@ -53,7 +55,7 @@ public class AndroidWebDriverSupport {
                     "am start -a android.intent.action.MAIN -n org.openqa.selenium.android.app/.MainActivity", monkey);
 
             // add port forwarding
-            device.executeShellCommand("forward tcp:14444 tcp:8080", monkey);
+            executor.execute(sdk.getAdbPath(), "-s", device.getSerialNumber(), "forward", "tcp:14444", "tcp:8080");
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
