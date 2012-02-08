@@ -30,13 +30,19 @@
     </extension>
 
     <extension qualifier="android-sdk">
+        <property name="home">/home/kpiwko/apps/android-sdk-linux_x86</property>
         <!-- DEFY+ -->
+        <!-- 
         <property name="serialId">0A3B89060A01600D</property>
+        -->
         <!-- Nexus S -->
         <!-- <property name="serialId">3233E8EDB21700EC</property>-->
+        <!-- Xoom --><!-- 
+        <property name="serialId">161c110144002197</property>
+        -->
 
         <property name="verbose">true</property>
-        <property name="androidServerApk">android-server-2.6.0.apk</property>
+        <property name="androidServerApk">android-server-2.16.apk</property>
         <property name="apiLevel">13</property>
         <property name="avdName">SnapshotEnabled</property>
         <property name="emulatorStartupTimeout">180000</property>
