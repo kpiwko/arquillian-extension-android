@@ -72,7 +72,7 @@ public class AndroidWebDriverSupportEmulatorTestCase extends AbstractTestTestBas
         ArquillianDescriptor desc = Descriptors.create(ArquillianDescriptor.class)
                 .extension(AndroidSdkConfigurator.ANDROID_SDK_EXTENSION_NAME).property("force", "false")
                 .property("verbose", "true").property("avdName", "webdriver-emulator").property("apiLevel", "9")
-                .property("emulatorStartupTimeout", "120000").property("androidServerApk", "android-server-2.6.0.apk")
+                .property("emulatorBootupTimeout", "120000").property("androidServerApk", "android-server-2.6.0.apk")
                 .property("sdSize", "256M");
 
         bind(ApplicationScoped.class, ServiceLoader.class, serviceLoader);
