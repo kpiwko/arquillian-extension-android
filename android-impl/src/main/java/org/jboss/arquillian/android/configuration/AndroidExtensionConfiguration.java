@@ -20,7 +20,8 @@ public class AndroidExtensionConfiguration {
 
     private String home = System.getenv("ANDROID_HOME");
 
-    private String apiLevel = "9";
+    // Android 2.3.3 is the default
+    private String apiLevel = "10";
 
     public String getHome() {
         return home;
