@@ -62,8 +62,8 @@ public class EmulatorStartup {
 
             Process emulator = executor.spawn(sdk.getEmulatorPath(), "-avd", name, configuration.getEmulatorOptions());
             androidEmulator.set(new AndroidEmulator(emulator));
-            
-            waitUntilBootUpIsComplete(deviceDiscovery, executor, sdk, configuration.getEmulatorBootupTime());
+
+            waitUntilBootUpIsComplete(deviceDiscovery, executor, sdk, configuration.getEmulatorBootupTimeoutInSeconds());
             running = deviceDiscovery.getDiscoveredDevice();
 
             AndroidDebugBridge.removeDeviceChangeListener(deviceDiscovery);
@@ -83,10 +83,10 @@ public class EmulatorStartup {
         androidDeviceReady.fire(new AndroidDeviceReady(running));
     }
 
-    
+
     private void waitUntilBootUpIsComplete(DeviceDiscovery deviceDiscovery, ProcessExecutor executor, AndroidSdk sdk, long timeout) throws IOException {
         log.info("waiting until device is connected");
-        long timeLeft = timeout;
+        long timeLeft = timeout * 1000;
         // wait until the device is connected to ADB
         while(true) {
             long started = System.currentTimeMillis();
@@ -101,7 +101,7 @@ public class EmulatorStartup {
             timeLeft -= System.currentTimeMillis() - started;
             if (timeLeft <= 0) {
                 throw new IllegalStateException("No emulator device was brough online during " + timeout
-                    + "ms to Android Debug Bridge. Please increase the time limit in order to get emulator connected.");
+                    + " seconds to Android Debug Bridge. Please increase the time limit in order to get emulator connected.");
             }
         }
         // device is connected to ADB
@@ -124,11 +124,11 @@ public class EmulatorStartup {
             }
             timeLeft -= System.currentTimeMillis() - started;
             if (timeLeft <= 0) {
-                throw new IllegalStateException("Emulator device hasn't started properly in " + timeout + "ms");
+                throw new IllegalStateException("Emulator device hasn't started properly in " + timeout + " seconds. Please increas the time limit in orded to get emulator booted");
             }
         }
     }
-    
+
     private boolean equalsIgnoreNulls(String current, String other) {
         if (current == null && other == null) {
             return false;

@@ -16,7 +16,7 @@ public class AndroidSdkConfiguration {
 
     private String sdSize = "128M";
 
-    private long emulatorBootupTime = 120000L;
+    private long emulatorBootupTimeoutInSeconds = 120L;
 
     private String androidServerApk = "android-server.apk";
 
@@ -84,12 +84,12 @@ public class AndroidSdkConfiguration {
         this.force = force;
     }
 
-    public long getEmulatorBootupTime() {
-        return emulatorBootupTime;
+    public long getEmulatorBootupTimeoutInSeconds() {
+        return emulatorBootupTimeoutInSeconds;
     }
 
-    public void setEmulatorBootupTime(long emulatorBootupTime) {
-        this.emulatorBootupTime = emulatorBootupTime;
+    public void setEmulatorBootupTimeoutInSeconds(long emulatorBootupTimeoutInSeconds) {
+        this.emulatorBootupTimeoutInSeconds = emulatorBootupTimeoutInSeconds;
     }
 
     public String getApiLevel() {
