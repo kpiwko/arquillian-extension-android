@@ -19,7 +19,6 @@
     </extension>
 
     <extension qualifier="android">
-        <property name="home">/home/kpiwko/apps/android-sdk-linux_x86</property>
         <!-- DEFY+ --><!--
             <property name="serialId">0A3B89060A01600D</property>
         -->

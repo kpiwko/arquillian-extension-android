@@ -125,7 +125,7 @@ public class EmulatorStartup {
             timeLeft -= System.currentTimeMillis() - started;
             if (timeLeft <= 0) {
                 throw new IllegalStateException("Emulator device hasn't started properly in " + timeout
-                        + " seconds. Please increas the time limit in orded to get emulator booted");
+                        + " seconds. Please increase the time limit in order to get emulator booted.");
             }
         }
     }
