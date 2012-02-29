@@ -40,6 +40,8 @@ public class AndroidExtensionConfiguration {
 
     private long emulatorBootupTimeoutInSeconds = 120L;
 
+    private long realDeviceDiscoveryTimeoutInSeconds = 5L;
+
     private String home = System.getenv("ANDROID_HOME");
 
     // Android 2.3.3 is the default
@@ -123,6 +125,20 @@ public class AndroidExtensionConfiguration {
 
     public void setSdSize(String sdSize) {
         this.sdSize = sdSize;
+    }
+
+    /**
+     * @return the realDeviceDiscoveryTimeoutInSeconds
+     */
+    public long getRealDeviceDiscoveryTimeoutInSeconds() {
+        return realDeviceDiscoveryTimeoutInSeconds;
+    }
+
+    /**
+     * @param realDeviceDiscoveryTimeoutInSeconds the realDeviceDiscoveryTimeoutInSeconds to set
+     */
+    public void setRealDeviceDiscoveryTimeoutInSeconds(long realDeviceDiscoveryTimeoutInSeconds) {
+        this.realDeviceDiscoveryTimeoutInSeconds = realDeviceDiscoveryTimeoutInSeconds;
     }
 
 }

@@ -41,6 +41,10 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.annotation.SuiteScoped;
 
+import com.android.ddmlib.AndroidDebugBridge;
+import com.android.ddmlib.IDevice;
+import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener;
+
 /**
  * Select either a real device or virtual device for execution. If a real device is specified via its serial number, it will
  * check if it is connected, otherwise it will use an virtual device.
@@ -90,7 +94,8 @@ public class AndroidDeviceSelector {
         AndroidBridge bridge = event.getBridge();
 
         // get priority for device specified by serialId if such device is connected
-        AndroidDevice device = checkIfRealDeviceIsConnected(bridge, serialId);
+        AndroidDevice device = checkIfRealDeviceIsConnected(bridge, serialId,
+                configuration.getRealDeviceDiscoveryTimeoutInSeconds());
         if (device != null) {
             androidDevice.set(device);
             androidDeviceReady.fire(new AndroidDeviceReady(device));
@@ -125,20 +130,51 @@ public class AndroidDeviceSelector {
 
     }
 
-    private AndroidDevice checkIfRealDeviceIsConnected(AndroidBridge bridge, String serialId) {
+    private AndroidDevice checkIfRealDeviceIsConnected(AndroidBridge bridge, String serialId, long timeout) {
         // no serialId was specified
         if (serialId == null || serialId.trim().isEmpty()) {
             return null;
         }
 
+        // we can get device immediately
         for (AndroidDevice device : bridge.getDevices()) {
             if (serialId.equals(device.getSerialNumber())) {
+                log.info("Selected a device by its \"serialId\" " + serialId);
                 return device;
             }
         }
 
-        log.warning("SerialId " + serialId
-                + " was specified, however no such device was connected. Trying to connect to an emulator instead.");
+        NamedDeviceDiscovery deviceDiscovery = new NamedDeviceDiscovery(serialId);
+        AndroidDebugBridge.addDeviceChangeListener(deviceDiscovery);
+
+        log.info("Waiting " + timeout + " seconds until the device is connected");
+
+        // wait until the device is connected to ADB
+        long timeLeft = timeout * 1000;
+        while (timeLeft > 0) {
+            long started = System.currentTimeMillis();
+            if (deviceDiscovery.isOnline()) {
+                log.info("Selected a device by its \"serialId\" " + serialId);
+                break;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            timeLeft -= System.currentTimeMillis() - started;
+        }
+        // device is connected to ADB
+        AndroidDevice connectedDevice = deviceDiscovery.getDiscoveredDevice();
+        AndroidDebugBridge.removeDeviceChangeListener(deviceDiscovery);
+
+        if (connectedDevice != null) {
+            return connectedDevice;
+        }
+
+        log.warning("SerialId " + serialId + " was specified, however no such device was connected during " + timeout
+                + " seconds. Trying to connect to an emulator instead.");
 
         return null;
 
@@ -168,5 +204,47 @@ public class AndroidDeviceSelector {
         }
 
         return names;
+    }
+
+    private class NamedDeviceDiscovery implements IDeviceChangeListener {
+
+        private IDevice discoveredDevice;
+
+        private boolean online;
+
+        private String serialId;
+
+        public NamedDeviceDiscovery(String serialId) {
+            this.serialId = serialId;
+        }
+
+        @Override
+        public void deviceChanged(IDevice device, int changeMask) {
+            if (discoveredDevice.equals(device) && (changeMask & IDevice.CHANGE_STATE) == 1) {
+                if (device.isOnline()) {
+                    this.online = true;
+                }
+            }
+        }
+
+        @Override
+        public void deviceConnected(IDevice device) {
+            if (serialId.equals(device.getSerialNumber())) {
+                this.discoveredDevice = device;
+                log.fine("Discovered an device connected to ADB bus specified by serialId " + serialId);
+            }
+        }
+
+        @Override
+        public void deviceDisconnected(IDevice device) {
+        }
+
+        public AndroidDevice getDiscoveredDevice() {
+            return new AndroidDeviceImpl(discoveredDevice);
+        }
+
+        public boolean isOnline() {
+            return online;
+        }
     }
 }
